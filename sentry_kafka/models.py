@@ -5,7 +5,7 @@ sentry_kafka.models
 
 from django import forms
 from django.conf import settings
-from django.core import validators
+from django.core import (validators, exceptions)
 from kafka import KafkaClient, SimpleProducer
 
 from sentry.plugins.bases.notify import NotifyPlugin
@@ -16,17 +16,24 @@ import json
 import re
 import types
 
+def KafkaOptionsFormValidateDots(value):
+    if value == '.' or value == '..':
+        raise exceptions.ValidationError('Topic cannot be "." or ".."')
+
 class KafkaOptionsForm(forms.Form):
-    valid_topic_expr = re.compile('^[-_.a-z0-9]+$', re.IGNORECASE)    
+    valid_topic_expr = re.compile('^[-_.a-z0-9]+$', re.IGNORECASE)
     kafka_instance = forms.CharField(help_text="Your Kafka instance (including port)")
     topic = forms.CharField(help_text="Kafka topic - will use \"Organization.Team.Project\" by default",
                             required=False, max_length=255,
                             validators=[validators.RegexValidator(
                                             regex=valid_topic_expr,
-                                            message='Topics may only include alphanumeric characters, numbers, periods, dashes and underscores'
-                                        )])
+                                            message='Topics may only include alphanumeric characters, numbers, periods, dashes and underscores'),
+                                        validators.MaxLengthValidator(255),
+                                        KafkaOptionsFormValidateDots])
     assume_topic_exists = forms.BooleanField(help_text="Do not check for existence or manually create the topic before sending the message.",
                                              initial=False, required=False)
+    
+
 
 class KafkaMessage(NotifyPlugin):
     author = 'Chad Killingsworth, Jack Henry and Associates'
