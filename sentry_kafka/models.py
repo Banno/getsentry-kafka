@@ -18,7 +18,7 @@ import types
 
 class KafkaOptionsForm(forms.Form):
     valid_topic_expr = re.compile('^[-_.a-z0-9]+$', re.IGNORECASE)    
-    kafka_instance = forms.CharField(help_text="Your Kafka instance (including port")
+    kafka_instance = forms.CharField(help_text="Your Kafka instance (including port)")
     topic = forms.CharField(help_text="Kafka topic - will use \"Organization.Team.Project\" by default",
                             required=False, max_length=255,
                             validators=[validators.RegexValidator(
