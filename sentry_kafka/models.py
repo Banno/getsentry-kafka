@@ -19,6 +19,8 @@ class KafkaOptionsForm(forms.Form):
     kafka_instance = forms.CharField(help_text="Your Kafka instance (including port")
     topic = forms.CharField(help_text="Kafka topic - will use \"Organization.Team.Project\" by default",
                             required=False)
+    assume_topic_exists = forms.BooleanField(help_text="Do not check for existence or manually create the topic before sending the message.",
+                                             initial=False)
 
 class KafkaMessage(NotifyPlugin):
     author = 'Chad Killingsworth, Jack Henry and Associates'
@@ -45,9 +47,11 @@ class KafkaMessage(NotifyPlugin):
     #    team_name = alert.project.team.name,
     #    organization_name = alert.project.organization.name,
     #    project_name = alert.project.name,
-    #    topic = self.get_option('', project) or KafkaMessage.get_default_topic(
+    #    topic = self.get_option('topic', project) or KafkaMessage.get_default_topic(
     #       organization_name, team_name, project_name)
     #    endpoint = self.get_option('kafka_instance', project)
+    #
+    #    topic = topic[0:255] #Kafka topics must be at most 255 characters
     #
     #    if endpoint:
     #        self.send_payload(
@@ -71,6 +75,9 @@ class KafkaMessage(NotifyPlugin):
         topic = self.get_option('topic', project) or KafkaMessage.get_default_topic(
             organization_name, team_name, project_name)
         endpoint = self.get_option('kafka_instance', project)
+        assume_topic_exists = self.get_option('assume_topic_exists', project) or False
+
+        topic = topic[0:255] #Kafka topics must be at most 255 characters
 
         if endpoint:
             self.send_payload(
@@ -84,23 +91,26 @@ class KafkaMessage(NotifyPlugin):
                      'project_name': project_name,
                      'message': notification.event.error(),
                      'data': json.dumps(notification.event.as_dict(), default=KafkaMessage.date_serializer)
-                 }
+                 },
+                 ensure_topic_exists=not assume_topic_exists
              )
  
 
-    def send_payload(self, endpoint, topic, message):
+    def send_payload(self, endpoint, topic, message, ensure_topic_exists=True):
         kafka = KafkaClient(endpoint)
-        kafka.ensure_topic_exists(topic)
+        if ensure_topic_exists:
+            kafka.ensure_topic_exists(topic)
+        
         producer = SimpleProducer(kafka, async=True)
         producer.send_messages(topic, message)
     
     @staticmethod
     def get_default_topic(organization, team, project):
-        return '%s.%s.%s' % (
-            KafkaMessage.invalid_topic_chars_expr.sub(r'_', KafkaMessage.list_to_string(organization)),
-            KafkaMessage.invalid_topic_chars_expr.sub(r'_', KafkaMessage.list_to_string(team)),
-            KafkaMessage.invalid_topic_chars_expr.sub(r'_', KafkaMessage.list_to_string(project))
-        )
+        return ('%s.%s.%s' % (
+            KafkaMessage.invalid_topic_chars_expr.sub('_', KafkaMessage.list_to_string(organization)),
+            KafkaMessage.invalid_topic_chars_expr.sub('_', KafkaMessage.list_to_string(team)),
+            KafkaMessage.invalid_topic_chars_expr.sub('_', KafkaMessage.list_to_string(project))
+        ))
     
     @staticmethod
     def list_to_string(obj):
