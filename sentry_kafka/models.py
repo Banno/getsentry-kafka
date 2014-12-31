@@ -22,7 +22,7 @@ def KafkaOptionsFormValidateDots(value):
 
 class KafkaOptionsForm(forms.Form):
     valid_topic_expr = re.compile('^[-_.a-z0-9]+$', re.IGNORECASE)
-    kafka_instance = forms.CharField(help_text="Your Kafka instance (including port)")
+    kafka_instance = forms.CharField(help_text="Your Kafka broker connection string (may be a comma separated list of brokers)")
     topic = forms.CharField(help_text="Kafka topic - will use \"Organization.Team.Project\" by default",
                             required=False, max_length=255,
                             validators=[validators.RegexValidator(
@@ -32,7 +32,7 @@ class KafkaOptionsForm(forms.Form):
                                         KafkaOptionsFormValidateDots])
     assume_topic_exists = forms.BooleanField(help_text="Do not check for existence or manually create the topic before sending the message.",
                                              initial=False, required=False)
-    
+
 
 
 class KafkaMessage(NotifyPlugin):
