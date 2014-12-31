@@ -109,4 +109,3 @@ class KafkaMessage(NotifyPlugin):
     @staticmethod  
     def date_serializer(obj):
         return obj.isoformat() if hasattr(obj, 'isoformat') else obj
-        

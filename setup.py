@@ -21,7 +21,7 @@ setup(
     url='http://github.com/banno/sentry-kafka',
     description='A Sentry extension which integrates with Apache Kafka.',
     long_description=__doc__,
-    license='BSD',
+#    license='BSD',
     packages=find_packages(),
     zip_safe=False,
     install_requires=install_requires,
