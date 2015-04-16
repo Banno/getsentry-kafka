@@ -57,12 +57,12 @@ class KafkaOptionsForm(forms.Form):
 
 class KafkaMessage(NotifyPlugin):
     author = 'Chad Killingsworth, Jack Henry and Associates'
-    author_url = 'https://github.com/banno/sentry-kafka'
+    author_url = 'https://github.com/banno/getsentry-kafka'
     version = sentry_kafka.VERSION
     description = "Forward events to Kafka for logging."
     resource_links = [
-        ('Bug Tracker', 'https://github.com/banno/sentry-kafka/issues'),
-        ('Source', 'https://github.com/banno/sentry-kafka'),
+        ('Bug Tracker', 'https://github.com/banno/getsentry-kafka/issues'),
+        ('Source', 'https://github.com/banno/getsentry-kafka'),
     ]
     slug = 'kafka'
     title = 'Kafka Logging'

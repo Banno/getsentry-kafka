@@ -15,7 +15,7 @@ install_requires = [
 
 setup(
     name='sentry-kafka',
-    version='1.0',
+    version='1.1',
     download_url='https://github.com/banno/getsentry-kafka/tarball/1.0',
     author='Chad Killingsworth - Jack Henry and Associates, Inc.',
     author_email='chadkillingsworth@banno.com',
