@@ -9,6 +9,6 @@ Go to your project's configuration page (Projects -> [Project]) and select the K
 
 You may optionally set the broker in the sentry config:
 
-    `KAFKA_BROKER=my.broker.com:9092`
+    KAFKA_BROKER='my.broker.com:9092'
 
 When set in the config, the broker field will be readonly for all projects.
